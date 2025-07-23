@@ -6,7 +6,7 @@ import MovieGrid from '../MovieGrid/MovieGrid';
 import Loader from '../Loader/Loader';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import MovieModal from '../MovieModal/MovieModal';
-import type{ Movie } from '../../types/movie';
+import type { Movie } from '../../types/movie';
 import { fetchMovies } from '../../services/movieService';
 
 export default function App() {
@@ -15,7 +15,10 @@ export default function App() {
   const [error, setError] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const handleSearch = async (query: string) => {
+  const handleSearch = async (formData: FormData) => {
+    const query = formData.get('query')?.toString().trim();
+    if (!query) return;
+
     setIsLoading(true);
     setError(false);
     setMovies([]);
@@ -36,7 +39,7 @@ export default function App() {
   return (
     <>
       <Toaster position="top-right" />
-      <SearchBar onSubmit={handleSearch} />
+      <SearchBar action={handleSearch} />
       {isLoading && <Loader />}
       {error && <ErrorMessage />}
       {movies.length > 0 && <MovieGrid movies={movies} onSelect={setSelectedMovie} />}

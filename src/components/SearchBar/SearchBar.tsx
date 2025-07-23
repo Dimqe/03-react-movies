@@ -1,24 +1,32 @@
-import type{ FormEvent } from 'react';
+
+
+import { useFormStatus } from 'react-dom';
 import toast from 'react-hot-toast';
 import styles from './SearchBar.module.css';
 
 interface SearchBarProps {
-  onSubmit: (query: string) => void;
+  action: (formData: FormData) => void;
 }
 
-export default function SearchBar({ onSubmit }: SearchBarProps) {
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const query = (form.elements.namedItem('query') as HTMLInputElement).value.trim();
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button className={styles.button} type="submit" disabled={pending}>
+      {pending ? 'Searching...' : 'Search'}
+    </button>
+  );
+}
+
+export default function SearchBar({ action }: SearchBarProps) {
+  const handleFormAction = async (formData: FormData) => {
+    const query = formData.get('query')?.toString().trim();
 
     if (!query) {
       toast.error('Please enter your search query.');
       return;
     }
 
-    onSubmit(query);
-    form.reset();
+    action(formData); 
   };
 
   return (
@@ -32,7 +40,7 @@ export default function SearchBar({ onSubmit }: SearchBarProps) {
         >
           Powered by TMDB
         </a>
-        <form className={styles.form} onSubmit={handleSubmit}>
+        <form className={styles.form} action={handleFormAction}>
           <input
             className={styles.input}
             type="text"
@@ -41,9 +49,7 @@ export default function SearchBar({ onSubmit }: SearchBarProps) {
             placeholder="Search movies..."
             autoFocus
           />
-          <button className={styles.button} type="submit">
-            Search
-          </button>
+          <SubmitButton />
         </form>
       </div>
     </header>
