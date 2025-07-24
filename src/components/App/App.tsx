@@ -15,16 +15,16 @@ export default function App() {
   const [error, setError] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const handleSearch = async (formData: FormData) => {
-    const query = formData.get('query')?.toString().trim();
-    if (!query) return;
+  const handleSearch = async (query: string) => {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) return;
 
     setIsLoading(true);
     setError(false);
     setMovies([]);
 
     try {
-      const results = await fetchMovies(query);
+      const results = await fetchMovies(trimmedQuery);
       if (results.length === 0) {
         toast.error('No movies found for your request.');
       }
@@ -39,11 +39,15 @@ export default function App() {
   return (
     <>
       <Toaster position="top-right" />
-      <SearchBar action={handleSearch} />
+      <SearchBar onSubmit={handleSearch} />
       {isLoading && <Loader />}
       {error && <ErrorMessage />}
-      {movies.length > 0 && <MovieGrid movies={movies} onSelect={setSelectedMovie} />}
-      {selectedMovie && <MovieModal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />}
+      {movies.length > 0 && (
+        <MovieGrid movies={movies} onSelect={setSelectedMovie} />
+      )}
+      {selectedMovie && (
+        <MovieModal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />
+      )}
     </>
   );
 }
